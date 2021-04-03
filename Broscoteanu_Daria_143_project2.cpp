@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string.h>
 #include <vector>
+#include <sstream>
+#include <stdexcept>
 /*Tema 13. Se dau următoarele clase:
 - Clasa Localitate(char *denumire; int cod; long nr_locuitori)
 - Clasa Oras(int nrSpitaledeUrgenta, char* numePrimar) : Localitate
@@ -278,11 +280,11 @@ public:
     //supraincarcare
     ResedintaDeJudet &operator=(const ResedintaDeJudet &resedintaDeJudet);
     virtual istream& read(istream &is){
-        cout << "Introduceti denumirea orasului:\n";
+        cout << "Introduceti denumirea Resedintei de judet:\n";
         if( denumire == NULL)
             denumire=new char[256];
         is.getline(denumire,256);
-        cout << "Introduceti codul orasului:\n";
+        cout << "Introduceti codul Resedintei de judet:\n";
         is >> cod;
         cout << "Introduceti numarul de locuitori: \n";
         is >> nr_locuitori;
@@ -301,7 +303,7 @@ public:
         return is;
     }
     virtual ostream &print(ostream &os){
-        os << "Denumire Oras: " << denumire << " Cod Oras: " << cod << " Numar de Locuitori: " << nr_locuitori << " Nume Primar: " << numePrimar << " Numar de Spitale de Urgenta: " << nrSpitaledeUrgenta << "Numele Presedintelui Consiliului Judetean: " << numePresedinteConsiliuJudetean;
+        os << "Denumirea resedintei de judet: " << denumire << " Codul resedintei de judet: " << cod << " Numar de Locuitori: " << nr_locuitori << " Nume Primar: " << numePrimar << " Numar de Spitale de Urgenta: " << nrSpitaledeUrgenta << " Numele Presedintelui Consiliului Judetean: " << numePresedinteConsiliuJudetean;
         os << '\n';
         return os;
     }
@@ -311,20 +313,20 @@ public:
 
 };
 ResedintaDeJudet & ResedintaDeJudet::operator=(const ResedintaDeJudet &resedintaDeJudet) {
-        if(resedintaDeJudet.numePresedinteConsiliuJudetean==NULL){
-            if(this->numePresedinteConsiliuJudetean!=NULL){
-                char *del=this->numePresedinteConsiliuJudetean;
-                this->numePresedinteConsiliuJudetean=NULL;
-                delete[] del;
-            }
+    if(resedintaDeJudet.numePresedinteConsiliuJudetean==NULL){
+        if(this->numePresedinteConsiliuJudetean!=NULL){
+            char *del=this->numePresedinteConsiliuJudetean;
+            this->numePresedinteConsiliuJudetean=NULL;
+            delete[] del;
         }
-        else{
-            if(this->numePresedinteConsiliuJudetean==NULL)
-                this->numePresedinteConsiliuJudetean=new char[256];
-            strcpy(this->numePresedinteConsiliuJudetean,resedintaDeJudet.numePresedinteConsiliuJudetean);
-        }
-        Oras::operator=(resedintaDeJudet);
-        return *this;
+    }
+    else{
+        if(this->numePresedinteConsiliuJudetean==NULL)
+            this->numePresedinteConsiliuJudetean=new char[256];
+        strcpy(this->numePresedinteConsiliuJudetean,resedintaDeJudet.numePresedinteConsiliuJudetean);
+    }
+    Oras::operator=(resedintaDeJudet);
+    return *this;
 }
 void ResedintaDeJudet::set_numePresedinteConsiliuJudetean(char *nume) {
     if(this->numePresedinteConsiliuJudetean==NULL)
@@ -332,159 +334,8 @@ void ResedintaDeJudet::set_numePresedinteConsiliuJudetean(char *nume) {
     strcpy(this->numePresedinteConsiliuJudetean,nume);
 }
 char * ResedintaDeJudet::get_numePresedinteConsiliuJudetean() {
-        return this->numePresedinteConsiliuJudetean;
+    return this->numePresedinteConsiliuJudetean;
 }
-//- Clasa Judet(Localitate *l, char* numePrefect)
-/*
-class Judet{
-protected:
-    Localitate *localitati;
-    int nrLocalitati;
-    char *numePrefect;
-public:
-    //set
-    void set_Localitate(Localitate *v,int n);
-    void set_nrLocalitati(int n);
-    void set_numePrefect(char *nume);
-    //get
-    Localitate* get_Localitate();
-    int get_nrLocalitati();
-    char* get_numePerfect();
-    //Constructori
-    //Constructor fara parametrii
-    Judet(){
-        this->localitati=NULL;
-        this->nrLocalitati=0;
-        this->numePrefect=NULL;
-    }
-    Judet(const Judet& judet){
-        this->localitati=new Localitate[judet.nrLocalitati];
-        this->nrLocalitati=judet.nrLocalitati;
-        for(int i=0;i<judet.nrLocalitati;++i)
-            this->localitati[i]=judet.localitati[i];
-        this->numePrefect=new char[256];
-        strcpy(this->numePrefect,judet.numePrefect);
-    }
-    //Constructor cu parametrii
-    Judet(const Localitate *v, int n, const char *nume){
-        this->localitati=new Localitate[n];
-        this->nrLocalitati=n;
-        for(int i=0;i<n;++i)
-            this->localitati[i]=v[i];
-        this->numePrefect=new char[256];
-        strcpy(this->numePrefect,nume);
-    }
-    //Destructor
-    ~Judet(){
-        if(localitati!=NULL)
-            delete[] localitati;
-        localitati=NULL;
-        if(numePrefect!=NULL)
-            delete[] numePrefect;
-        numePrefect=NULL;
-    }
-    //supraincarcare
-    Judet &operator=(const Judet &judet);
-    friend istream& operator>>(istream &is, Judet &judet);
-    friend ostream& operator<<(ostream &os, const Judet &judet);
-};
-Judet & Judet::operator=(const Judet &judet) {
-    if(judet.numePrefect==NULL){
-            if(this->numePrefect!=NULL){
-                char *del=this->numePrefect;
-                this->numePrefect=NULL;
-                delete[] del;
-            }
-        }
-        else{
-            if(this->numePrefect==NULL)
-                this->numePrefect=new char[256];
-            strcpy(this->numePrefect,judet.numePrefect);
-        }
-    if(judet.localitati==NULL){
-        if(this->localitati!=NULL){
-            Localitate *del=this->localitati;
-            this->localitati=NULL;
-            delete[] del;
-        }
-    }
-    else{
-        if(this->localitati==NULL)
-            this->localitati=new Localitate[judet.nrLocalitati];
-        for(int i=0;i<judet.nrLocalitati;++i)
-            this->localitati[i]=judet.localitati[i];
-    }
-    this->nrLocalitati=judet.nrLocalitati;
-    return *this;
-}
-istream &operator>>(istream &is, Judet &judet){
-    cout<<"Introduceti numarul de localitati din judet:\n";
-    is >> judet.nrLocalitati;
-    is.get();
-    cout<<"Introduceti localitati din judet:\n";
-    if(judet.localitati==NULL)
-        judet.localitati=new ResedintaDeJudet[judet.nrLocalitati];
-    char optiune;
-    for(int i=0;i<judet.nrLocalitati;++i){
-        cout<<"optiune = \n";
-        is.get(optiune);
-        is.get();
-        if(optiune == 'R'){
-            ResedintaDeJudet *resedintaDeJudet;
-            is >> *resedintaDeJudet;
-            judet.localitati[i] = *resedintaDeJudet;
-        }
-        else
-            if(optiune == 'O'){
-                Oras oras;
-                is >> oras;
-                judet.localitati[i] =  oras;
-            }
-            else{
-                Localitate localitate;
-                is >> localitate;
-                judet.localitati[i] =  localitate;
-            }
-    }
-    is.get();
-    cout<<"Introduceti numele prefectului:\n";
-    if(judet.numePrefect==NULL)
-        judet.numePrefect=new char[256];
-    is.getline(judet.numePrefect,256);
-    return is;
-}
-ostream &operator<<(ostream &os, const Judet &judet){
-    os << "Numarul de Localitati: "<<judet.nrLocalitati << '\n';
-    os << "Localitati:\n";
-    for(int i=0;i<judet.nrLocalitati;++i)
-        os << judet.localitati[i];
-    os << "Numele Prefectului: " << judet.numePrefect;
-    os <<'\n';
-    return os;
-}
-void Judet::set_Localitate(Localitate *v,int n) {
-    localitati = new Localitate[n];
-    nrLocalitati = n;
-    for(int i=0; i<n;++i)
-        localitati[i]=v[i];
-}
-void Judet::set_nrLocalitati(int n) {
-    nrLocalitati = n;
-}
-void Judet::set_numePrefect(char *nume) {
-    if(this->numePrefect==NULL)
-        this->numePrefect=new char[256];
-    strcpy(this->numePrefect,nume);
-}
-Localitate * Judet::get_Localitate() {
-    return this->localitati;
-}
-int Judet::get_nrLocalitati() {
-    return this->nrLocalitati;
-}
-char * Judet::get_numePerfect() {
-    return this->numePrefect;
-}*/
 
 class Judet{
 protected:
@@ -507,18 +358,44 @@ public:
         this->nrLocalitati=0;
         this->numePrefect=NULL;
     }
-    Judet(const Judet& judet):localitati(NULL){
-        *this = judet;
+    //Constructor de copiere
+    Judet(const Judet& judet){
+        this->localitati=new Localitate*[judet.nrLocalitati];
+        this->nrLocalitati=judet.nrLocalitati;
+        for(int i=0;i<judet.nrLocalitati;++i)
+            if(judet.localitati[i]->esteResedinta()==1){
+                this->localitati[i]=new Oras();
+                this->localitati[i]=judet.localitati[i];
+            }
+            else
+                if(judet.localitati[i]->esteResedinta()==2){
+                    this->localitati[i]=new ResedintaDeJudet();
+                    this->localitati[i]=judet.localitati[i];
+                }
+                else
+                    this->localitati[i]=judet.localitati[i];
+        this->numePrefect=new char[256];
+        strcpy(this->numePrefect,judet.numePrefect);
     }
     //Constructor cu parametrii
-    /*Judet(const Localitate **v, int n, const char *nume){
+    Judet(Localitate **v, int n, const char *nume){
         this->localitati=new Localitate*[n];
         this->nrLocalitati=n;
         for(int i=0;i<n;++i)
-            this->localitati[i]=v[i];
+            if(v[i]->esteResedinta()==1){
+                this->localitati[i] = new Oras((Oras&)(*v[i]));
+            }
+            else
+            if(v[i]->esteResedinta()==2){
+                this->localitati[i] = new ResedintaDeJudet((ResedintaDeJudet&)(*v[i]));
+            }
+            else{
+                this->localitati[i] = new Localitate((Localitate&)(*v[i]));
+            }
+
         this->numePrefect=new char[256];
         strcpy(this->numePrefect,nume);
-    }*/
+    }
     //Destructor
     ~Judet(){
         for(int i=0;i<nrLocalitati;++i)
@@ -528,6 +405,7 @@ public:
             delete[] numePrefect;
         numePrefect=NULL;
     }
+    bool esteConform();
     //supraincarcare
     Judet &operator=(const Judet &judet);
     friend istream& operator>>(istream &is, Judet &judet);
@@ -554,7 +432,17 @@ Judet & Judet::operator=(const Judet &judet) {
     this->localitati = new Localitate*[judet.nrLocalitati];
     this->nrLocalitati=judet.nrLocalitati;
     for(int i = 0;i < this->nrLocalitati;++i)
-        *(this->localitati[i])=*(judet.localitati[i]);
+        if(judet.localitati[i]->esteResedinta()==1){
+            this->localitati[i]=new Oras();
+            this->localitati[i]=judet.localitati[i];
+        }
+        else
+        if(judet.localitati[i]->esteResedinta()==2){
+            this->localitati[i]=new ResedintaDeJudet();
+            this->localitati[i]=judet.localitati[i];
+        }
+        else
+            this->localitati[i]=judet.localitati[i];
     return *this;
 }
 istream &operator>>(istream &is, Judet &judet){
@@ -564,27 +452,24 @@ istream &operator>>(istream &is, Judet &judet){
     cout<<"Introduceti localitati din judet:\n";
     if(judet.localitati==NULL)
         judet.localitati=new Localitate*[judet.nrLocalitati];
-    char optiune;
+    string optiune;
+
     for(int i=0;i<judet.nrLocalitati;++i){
-        cout<<"optiune = \n";
-        is.get(optiune);
+        cout<<"Ce vrei sa introduci?(localitate/oras/resedinta) ";
+        is >> optiune;
         is.get();
-        if(optiune == 'R'){
-            ResedintaDeJudet *resedintaDeJudet= new ResedintaDeJudet;
-            //ResedintaDeJudet &adr = judet.localitati[i];
-            is >> *resedintaDeJudet;
-            judet.localitati[i] = resedintaDeJudet;
+        if(optiune == "resedinta"){
+            judet.localitati[i]=new ResedintaDeJudet();
+            cin>>*(judet.localitati[i]);
         }
         else
-        if(optiune == 'O'){
-            Oras *oras = new Oras;
-            is >> *oras;
-            judet.localitati[i] =  oras;
+        if(optiune == "oras"){
+            judet.localitati[i] =  new Oras();
+            cin>>*(judet.localitati[i]);
         }
         else{
-            Localitate *localitate =new Localitate;
-            is >> *localitate;
-            judet.localitati[i] =  localitate;
+            judet.localitati[i] =  new Localitate();
+            is >> *(judet.localitati[i]);
         }
     }
     is.get();
@@ -598,21 +483,7 @@ ostream &operator<<(ostream &os, const Judet &judet){
     os << "Numarul de Localitati: "<<judet.nrLocalitati << '\n';
     os << "Localitati:\n";
     for(int i=0;i<judet.nrLocalitati;++i){
-        Localitate *loc;
-        (loc) = (judet.localitati[i]);
-        if(loc->esteResedinta()==0)
-            os << loc;
-        else
-            if(loc->esteResedinta()==1){
-                const Oras *oras=dynamic_cast<const Oras *> (loc);
-                cout << oras;
-            }
-            else
-            {
-                const ResedintaDeJudet *resedintaDeJudet=dynamic_cast<const ResedintaDeJudet *> (loc);
-                cout << resedintaDeJudet;
-            }
-
+        cout <<  *(judet.localitati[i]);
     }
     os << "Numele Prefectului: " << judet.numePrefect;
     os <<'\n';
@@ -641,19 +512,236 @@ int Judet::get_nrLocalitati() {
 char * Judet::get_numePerfect() {
     return this->numePrefect;
 }
-int main() {
-    Localitate **l;
-    l=new Localitate*[20];
-    //const char *denumire, int cod, long nr_locuitori,const char *nume, int nrSpitale
-    Oras o("Campulung", 1, 12, "Lasconi", 7);
-    //const char *denumire, int cod, long nr_locuitori,const char *nume, int nrSpitale, const char *numePresedinte
-    ResedintaDeJudet r("Pitesti", 2, 18, "Popa", 9, "Taroiu");
-    Localitate loc;
-    for(int i = 0;i < 2;++i){
-        cin>>loc;
-        *(l[i])=(loc);
+
+class Tara{
+    Judet **judete;
+    int size;
+    int mem;
+public:
+    Tara(){
+        this->judete=NULL;
+        this->size=0;
+        this->mem=0;
     }
-    for(int i=0;i<2;++i)
-        cout << *l[i]<<'\n';
+    Tara(const Tara& tara){
+        this->judete=new Judet*[tara.size];
+        this->size=tara.size;
+        this->mem=tara.mem;
+        for(int i=0;i<tara.size;++i){
+                this->judete[i]=new Judet();
+                this->judete[i]=tara.judete[i];
+            }
+    }
+    //Constructor cu parametrii
+    Tara(Judet **j,int size, int mem){
+        this->judete=new Judet*[size];
+        this->size=size;
+        this->mem=mem;
+        for(int i=0;i<size;++i){
+                this->judete[i] = new Judet((Judet&)(*j[i]));
+            }
+    }
+    //Destructor
+    ~Tara(){
+        for(int i=0;i<size;++i)
+            delete judete[i];
+        delete[] judete;
+    }
+    //supraincarcare
+    Tara &operator=(const Tara &tara);
+    friend ostream & operator << (ostream& os, const Tara &tara);
+    Judet & operator[] (int index);
+    const Judet & operator[] (int index) const;
+    //metode
+    void push_back (Judet *judet);
+    Judet * pop_back ();
+    Judet * remove (int index);
+    void read(Tara &tara);
+    void write(Tara tara);
+    void solve(Tara tara);
+};
+Tara & Tara::operator=(const Tara &tara) {
+    if(this->judete!=NULL){
+        for(int i=0;i<this->size;++i)
+            delete this->judete[i];
+        delete[] this->judete;
+    }
+    this->judete = new Judet*[tara.size];
+    this->size=tara.size;
+    this->mem=tara.mem;
+    for(int i = 0;i < this->size;++i){
+            this->judete[i]=new Judet();
+            this->judete[i]=tara.judete[i];
+        }
+    return *this;
+}
+ostream & operator << (ostream& os, const Tara &tara){
+    os << "Judetele tarii sunt:\n";
+    for (int i = 0; i < tara.size; i++)
+    {
+        os << tara.judete[i];
+        os << "\n";
+    }
+    return os;
+}
+Judet & Tara::operator[](int index) {
+    if (index < 0 || index >= size)
+        throw range_error ("Index out of bounds.");
+    return *judete[index];
+}
+const Judet & Tara::operator[](int index) const {
+    if (index < 0 || index >= size)
+        throw range_error ("Range Error");
+    return *judete[index];
+}
+void Tara::push_back(Judet *judet) {
+    if(size > mem)
+        throw runtime_error ("Size > memory");
+    if(size == mem){
+        Judet **new_tara = new Judet * [size * 2];
+
+        for (int i = 0; i < size; i++)
+            new_tara[i] = judete[i];
+
+        Judet **to_delete = judete;
+        judete = new_tara;
+        delete[] to_delete;
+
+        mem = mem == 0 ? 1 : mem * 2;
+    }
+    judete[size]=judet;
+    size++;
+}
+Judet * Tara::pop_back() {
+    return remove (size - 1);
+}
+Judet * Tara::remove(int index) {
+    if (index < 0 || index >= size)
+        throw range_error ("Range Error");
+
+    Judet* removed = judete[index];
+
+    if (size - 1 <= mem / 2)
+    {
+        Judet **new_tara = new Judet * [mem / 2];
+
+        for (int i = 0; i < index; i++)
+            new_tara[i] = judete[i];
+
+        for (int i = index + 1; i < size; i++)
+            new_tara[i - 1] = judete[i];
+
+        Judet **to_delete = judete;
+        judete = new_tara;
+
+        delete[] to_delete;
+
+        mem /= 2;
+    }
+    else
+        for (int i = index + 1; i < size; i++)
+            judete[i - 1] = judete[i];
+    size--;
+
+    return removed;
+}
+void Tara::read(Tara &tara) {
+    cout << "Introduceti numarul de judete:\n";
+    int n;
+    cin >> n;
+    for(int i=0;i<n;++i){
+        Judet *judet=new Judet;
+        cin >> *judet;
+        tara.push_back(judet);
+    }
+}
+void Tara::write(Tara tara) {
+    cout << tara;
+}
+//Se doreste să se afle dacă populatia fiecarui judet din tara este deservita de un numar suficient de spitale
+//cunoscandu-se faptul că este necesar să avem macar 2 spitale de urgență la suta de mii de locuitori pentru un oras obisnuit,
+//iar fiecare reședința de județ este dotată cu 1 spital judetean în plus,
+//        gândit să poată deservi 200 de mii de locuitori ai județului.
+//În cazul în care un Judet nu este conform, am dori să cunoaștem numele prefectului pentru a îi comunica situația.
+bool Judet::esteConform() {
+
+    for(int i=0; i < this->nrLocalitati;++i){
+        if(ResedintaDeJudet *resedintaDeJudet = dynamic_cast< ResedintaDeJudet *> (this->localitati[i])){
+            int nrSpitale = resedintaDeJudet->get_nrSpitaledeUrgenta();
+            int nrLocuitori = resedintaDeJudet->get_nr_locuitori();
+            nrLocuitori-=200000;
+            if(nrLocuitori<0)
+                continue;
+            else{
+                int number=nrLocuitori/100000;
+                if(2*number<=nrSpitale)
+                    continue;
+                else
+                    return false;
+            }
+        }
+        else
+        if(Oras *oras = dynamic_cast< Oras *> (this->localitati[i])){
+            int nrSpitale = oras->get_nrSpitaledeUrgenta();
+            int nrLocuitori = oras->get_nr_locuitori();
+            int number=nrLocuitori/100000;
+            if(2*number<=nrSpitale)
+                continue;
+            else
+                return false;
+        }
+    }
+    return true;
+}
+void Tara::solve(Tara tara) {
+    for(int i=0; i<tara.size; ++i)
+        if(tara.judete[i]->esteConform()==true){
+            cout<<"Judetul este conform\n";
+        }
+        else{
+                cout<<"Judetul nu este conform\n";
+                cout<<"Numele prefectului este: "<<tara.judete[i]->get_numePerfect()<<'\n';
+            }
+}
+void meniu_interactiv(){
+    Tara tara;
+    char optiune[256];
+    while (true){
+        cin.getline(optiune,256);
+        if(cin.eof())
+            break;
+        if(strcmp(optiune,"push")==0) {
+            Judet *judet=new Judet;
+            cin >> *judet;
+            tara.push_back(judet);
+        }
+        else
+            if(strcmp(optiune,"pop")==0){
+                tara.pop_back();
+            }
+            else
+                if(strcmp(optiune,"remove")==0){
+                    cout<<"Elimina judetul de pe pozitia:\n";
+                    int index;
+                    cin>>index;
+                    tara.remove(index);
+                }
+                else
+                    if(strcmp(optiune,"solve")==0){
+                        tara.solve(tara);
+                    }
+                    else
+                        if(strcmp(optiune,"read")==0){
+                            tara.read(tara);
+                        }
+                        else
+                            if(strcmp(optiune,"write")==0){
+                                tara.write(tara);
+                            }
+
+    }
+}
+int main() {
+    meniu_interactiv();
     return 0;
 }
