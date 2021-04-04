@@ -368,12 +368,12 @@ public:
                 this->localitati[i]=judet.localitati[i];
             }
             else
-                if(judet.localitati[i]->esteResedinta()==2){
-                    this->localitati[i]=new ResedintaDeJudet();
-                    this->localitati[i]=judet.localitati[i];
-                }
-                else
-                    this->localitati[i]=judet.localitati[i];
+            if(judet.localitati[i]->esteResedinta()==2){
+                this->localitati[i]=new ResedintaDeJudet();
+                this->localitati[i]=judet.localitati[i];
+            }
+            else
+                this->localitati[i]=judet.localitati[i];
         this->numePrefect=new char[256];
         strcpy(this->numePrefect,judet.numePrefect);
     }
@@ -472,7 +472,6 @@ istream &operator>>(istream &is, Judet &judet){
             is >> *(judet.localitati[i]);
         }
     }
-    is.get();
     cout<<"Introduceti numele prefectului:\n";
     if(judet.numePrefect==NULL)
         judet.numePrefect=new char[256];
@@ -528,9 +527,9 @@ public:
         this->size=tara.size;
         this->mem=tara.mem;
         for(int i=0;i<tara.size;++i){
-                this->judete[i]=new Judet();
-                this->judete[i]=tara.judete[i];
-            }
+            this->judete[i]=new Judet();
+            this->judete[i]=tara.judete[i];
+        }
     }
     //Constructor cu parametrii
     Tara(Judet **j,int size, int mem){
@@ -538,8 +537,8 @@ public:
         this->size=size;
         this->mem=mem;
         for(int i=0;i<size;++i){
-                this->judete[i] = new Judet((Judet&)(*j[i]));
-            }
+            this->judete[i] = new Judet((Judet&)(*j[i]));
+        }
     }
     //Destructor
     ~Tara(){
@@ -556,9 +555,9 @@ public:
     void push_back (Judet *judet);
     Judet * pop_back ();
     Judet * remove (int index);
-    void read(Tara &tara);
-    void write(Tara tara);
-    void solve(Tara tara);
+    void read();
+    void write();
+    void solve();
 };
 Tara & Tara::operator=(const Tara &tara) {
     if(this->judete!=NULL){
@@ -570,9 +569,9 @@ Tara & Tara::operator=(const Tara &tara) {
     this->size=tara.size;
     this->mem=tara.mem;
     for(int i = 0;i < this->size;++i){
-            this->judete[i]=new Judet();
-            this->judete[i]=tara.judete[i];
-        }
+        this->judete[i]=new Judet();
+        this->judete[i]=tara.judete[i];
+    }
     return *this;
 }
 ostream & operator << (ostream& os, const Tara &tara){
@@ -645,18 +644,20 @@ Judet * Tara::remove(int index) {
 
     return removed;
 }
-void Tara::read(Tara &tara) {
+void Tara::read() {
     cout << "Introduceti numarul de judete:\n";
     int n;
     cin >> n;
     for(int i=0;i<n;++i){
         Judet *judet=new Judet;
         cin >> *judet;
-        tara.push_back(judet);
+        this->push_back(judet);
     }
 }
-void Tara::write(Tara tara) {
-    cout << tara;
+void Tara::write() {
+    for(int i=0;i<this->size;++i)
+        cout << *(this->judete[i])<<'\n';
+
 }
 //Se doreste să se afle dacă populatia fiecarui judet din tara este deservita de un numar suficient de spitale
 //cunoscandu-se faptul că este necesar să avem macar 2 spitale de urgență la suta de mii de locuitori pentru un oras obisnuit,
@@ -693,51 +694,68 @@ bool Judet::esteConform() {
     }
     return true;
 }
-void Tara::solve(Tara tara) {
-    for(int i=0; i<tara.size; ++i)
-        if(tara.judete[i]->esteConform()==true){
+void Tara::solve() {
+    for(int i=0; i<this->size; ++i)
+        if(this->judete[i]->esteConform()==true){
             cout<<"Judetul este conform\n";
         }
         else{
-                cout<<"Judetul nu este conform\n";
-                cout<<"Numele prefectului este: "<<tara.judete[i]->get_numePerfect()<<'\n';
-            }
+            cout<<"Judetul nu este conform\n";
+            cout<<"Numele prefectului este: "<<this->judete[i]->get_numePerfect()<<'\n';
+        }
+}
+void functie_help(){
+    cout << "Pentru citirea judetelor unei tari introduceti : read\n";
+    cout << "Pentru afisare judetelor unei tari introduceti : write\n";
+    cout << "Pentru a adauga un judet intr-o tara introduceti : push\n";
+    cout << "Pentru a elimina ultimul judet dintr-o tara introduceti : pop\n";
+    cout << "Pentru a elimina judetul aflat pe o pozitie data dintr-o tara introduceti : remove\n";
+    cout << "Pentru a vedea care judete sunt conforme introduceti : solve\n";
+    cout << "Pentru a incheia programul introduceti: exit\n";
 }
 void meniu_interactiv(){
     Tara tara;
     char optiune[256];
+    cout << "Pentru ajutor introduceti : help\n";
     while (true){
         cin.getline(optiune,256);
         if(cin.eof())
             break;
+        if(strcmp(optiune,"help")==0){
+            functie_help();
+        }
         if(strcmp(optiune,"push")==0) {
             Judet *judet=new Judet;
             cin >> *judet;
             tara.push_back(judet);
         }
         else
-            if(strcmp(optiune,"pop")==0){
-                tara.pop_back();
+        if(strcmp(optiune,"pop")==0){
+            tara.pop_back();
+        }
+        else
+        if(strcmp(optiune,"remove")==0){
+            cout<<"Elimina judetul de pe pozitia:\n";
+            int index;
+            cin>>index;
+            tara.remove(index);
+        }
+        else
+        if(strcmp(optiune,"solve")==0){
+            tara.solve();
+        }
+        else
+        if(strcmp(optiune,"read")==0){
+            tara.read();
+        }
+        else
+        if(strcmp(optiune,"write")==0){
+            tara.write();
+        }
+        else
+            if(strcmp(optiune,"exit")==0){
+                break;
             }
-            else
-                if(strcmp(optiune,"remove")==0){
-                    cout<<"Elimina judetul de pe pozitia:\n";
-                    int index;
-                    cin>>index;
-                    tara.remove(index);
-                }
-                else
-                    if(strcmp(optiune,"solve")==0){
-                        tara.solve(tara);
-                    }
-                    else
-                        if(strcmp(optiune,"read")==0){
-                            tara.read(tara);
-                        }
-                        else
-                            if(strcmp(optiune,"write")==0){
-                                tara.write(tara);
-                            }
 
     }
 }
