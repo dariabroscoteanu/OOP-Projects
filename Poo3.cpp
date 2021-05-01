@@ -28,146 +28,84 @@ using namespace std;
 // în urma rezervărilor făcute la stand-up.
 //
 
-enum class SolistType{
-    Tenor = 0 ,
-    Bass = 1,
-    Bariton = 2
-};
 
 class Solist{
 protected:
     string nume;
-    SolistType type;
+    string solistType;
 public:
     const string getNume();
     void setNume(const string& nume);
 
-    SolistType getType() const;
-    void setType(SolistType type);
+    string getSolistType() const;
+    void setSolistType(string type);
 
     Solist();
     Solist(const Solist& solist);
-    Solist(const string &nume) : nume(nume) {}
+    Solist(const string &nume,const string &type) : nume(nume),solistType(type) {}
     virtual ~Solist(){};
-    Solist& operator=(Solist& solist);
+    Solist& operator=(const Solist& solist);
 
-    friend istream& operator>>(istream& is, Solist& solist){return solist.readSolist(is);}
-    friend ostream& operator<<(ostream&os, Solist& solist){return solist.printSolist(os);}
-
-    virtual istream& readSolist(istream& is) = 0;
-    virtual ostream& printSolist(ostream& os) = 0;
-
-    static Solist* Create(string SolistType);
+    friend istream& operator>>(istream& is, Solist& solist);
+    friend ostream& operator<<(ostream&os, Solist& solist);
 };
+istream & operator >> (istream & is, Solist & solist) {
+    cout << "Introduceti tipul solistului (Tenor/Bass/Bariton):\n";
+    getline(is, solist.solistType);
+    if (solist.solistType == "Tenor") {
+        cout << "Introduceti un Solist Tenor: \n";
+        getline(is, solist.nume);
+    } else if (solist.solistType == "Bass") {
+        cout << "Introduceti un Solist Bass: \n";
+        getline(is, solist.nume);
+    } else if (solist.solistType == "Bariton") {
+        cout << "Introduceti un Solist Bariton: \n";
+        getline(is, solist.nume);
+    } else {
+        while (solist.solistType != "Tenor" && solist.solistType != "Bass" && solist.solistType != "Bariton") {
+            cout << "Ati introdus un tip gresit\n";
+            cout << "Introduceti tipul solistului(Tenor/Bass/Bariton) - cu prima litera majuscula:\n";
+            getline(is, solist.solistType);
+        }
+        getline(is, solist.nume);
+    }
+    return is;
+}
+ostream& operator<<(ostream&os, Solist& solist){
+    if(solist.solistType == "Tenor"){
+        os << "Numele Solistului Tenor:" << solist.nume <<"\n";
+    }
+    else if (solist.solistType == "Bass"){
+        os << "Numele Solistului Bass:" << solist.nume <<"\n";
+    }
+    else if(solist.solistType == "Bariton"){
+        os << "Numele Solistului Bariton:" << solist.nume <<"\n";
+    }
+    return os;
+}
+
 Solist::Solist() {
     nume = "";
+    solistType = "";
 }
 Solist::Solist(const Solist &solist) {
     this->nume = solist.nume;
+    this->solistType = solist.solistType;
 }
-Solist & Solist::operator=(Solist &solist) {
+Solist & Solist::operator=(const Solist &solist) {
     this->nume = solist.nume;
+    this->solistType = solist.solistType;
     return *this;
 }
 
-SolistType Solist::getType() const {
-    return type;
+string Solist::getSolistType() const {
+    return solistType;
 }
 
-void Solist::setType(SolistType type) {
-    Solist::type = type;
+void Solist::setSolistType(string type) {
+    solistType = type;
 }
 
-
-class SolistTenor:public Solist{
-
-public:
-    SolistTenor():Solist(){Solist::type = SolistType::Tenor;};
-    SolistTenor(const SolistTenor& solistTenor):Solist(solistTenor){Solist::type = SolistType::Tenor;};
-    SolistTenor(string &nume):Solist(nume){Solist::type = SolistType::Tenor;}
-    virtual ~SolistTenor(){}
-    SolistTenor& operator=(SolistTenor& solistTenor);
-
-    virtual istream& readSolist(istream& is);
-    virtual ostream& printSolist(ostream& os);
-};
-SolistTenor & SolistTenor::operator=(SolistTenor &solistTenor) {
-    Solist::operator=(solistTenor);
-    return *this;
-}
-istream & SolistTenor::readSolist(istream &is) {
-    cout << "Introduceti un Solist Tenor: \n";
-    Solist::type = SolistType::Tenor;
-    getline(is, nume);
-    return is;
-}
-ostream & SolistTenor::printSolist(ostream &os) {
-    os << "Numele Solistului Tenor este: " << nume <<'\n';
-    return os;
-}
-
-class SolistBass:public Solist{
-public:
-    SolistBass():Solist(){Solist::type = SolistType::Bass;};
-    SolistBass(const SolistBass& solistBass):Solist(solistBass){Solist::type = SolistType::Bass;};
-    SolistBass(string &nume):Solist(nume){Solist::type = SolistType::Bass;}
-    virtual ~SolistBass(){}
-    SolistBass& operator=(SolistBass& solistBass);
-
-    virtual istream& readSolist(istream& is);
-    virtual ostream& printSolist(ostream& os);
-
-};
-SolistBass & SolistBass::operator=(SolistBass &solistBass) {
-    Solist::operator=(solistBass);
-    return *this;
-}
-istream & SolistBass::readSolist(istream &is) {
-    cout << "Introduceti un Solist Bass: \n";
-    getline(is, nume);
-    Solist::type = SolistType::Bass;
-    is.get();
-    return is;
-}
-ostream & SolistBass::printSolist(ostream &os) {
-    os << "Numele Solistului Bass este: " << nume <<'\n';
-    return os;
-}
-
-class SolistBariton:public Solist{
-public:
-    SolistBariton():Solist(){Solist::type = SolistType::Bariton;};
-    SolistBariton(const SolistBariton& solistBariton):Solist(solistBariton){Solist::type = SolistType::Bariton;};
-    SolistBariton(string &nume):Solist(nume){Solist::type = SolistType::Bariton;}
-    virtual ~SolistBariton(){}
-    SolistBariton& operator=(SolistBariton& solistBariton);
-
-    virtual istream& readSolist(istream& is);
-    virtual ostream& printSolist(ostream& os);
-};
-SolistBariton & SolistBariton::operator=(SolistBariton &solistBariton) {
-    Solist::operator=(solistBariton);
-    return *this;
-}
-istream & SolistBariton::readSolist(istream &is) {
-    cout << "Introduceti un Solist Bariton: \n";
-    Solist::type = SolistType::Bariton;
-    getline(is, nume);
-    return is;
-}
-ostream & SolistBariton::printSolist(ostream &os) {
-    os << "Numele Solistului Bariton este: " << nume <<'\n';
-    return os;
-}
-Solist * Solist::Create(string SolistType) {
-    if (SolistType == "Tenor")
-        return new SolistTenor();
-    else if (SolistType == "Bass")
-        return new SolistBass();
-    else if (SolistType == "Bariton")
-        return new SolistBariton();
-    else return nullptr;
-}
 
 
 //--------------------------------------------------------------------------------------------------------------------
@@ -204,24 +142,7 @@ const double Spectacol::getPretBilet() {
 void Spectacol::setPretBilet(double pret) {
     this->pretBilet = pret;
 }
-//istream & Spectacol::read(istream &is) {
-//    cout << "Introduceti denumirea spectacolului:\n";
-//    is >> this->denumireSpectacol;
-//    is.get();
-//    cout << "Introduceti durata spectacolului:\n";
-//    is >> this->durataSpectacol;
-//    cout << "Introduceti pretul biletului:\n";
-//    is >> this->pretBilet;
-//    is.get();
-//    return is;
-//}
-//ostream & Spectacol::print(ostream &os) {
-//    os << "Denumirea spectacolului: " << denumireSpectacol<< '\n';
-//    os << "Durata spectacolului: " << durataSpectacol<< '\n';
-//    os << "Pretul Biletului: " << pretBilet << '\n';
-//    os << '\n';
-//    return os;
-//}
+
 Spectacol & Spectacol::operator=(const Spectacol &spectacol) {
     this->denumireSpectacol = spectacol.denumireSpectacol;
     this->durataSpectacol = spectacol.durataSpectacol;
@@ -321,24 +242,24 @@ const string &SpectacolTeatru::getInteractiva() const {
 
 class SpectacolOpera:public Spectacol{
 protected:
-    Solist *solist;
+    Solist solist;
     int nrActe;
     vector<int>durataActe;
     int durataPauza;
 public:
-    const Solist *getSolist();
+    const Solist getSolist();
     const int getNrActe();
     const vector<int> &getDurataActe();
     const int getDurataPauza();
 
-    void setSolist(Solist *solist);
+    void setSolist(Solist solist);
     void setNrActe(int nrActe);
     void setDurataActe(const vector<int> &durataActe);
     void setDurataPauza(int durataPauza);
 
     SpectacolOpera();
     SpectacolOpera(const SpectacolOpera& spectacolOpera);
-    SpectacolOpera(const string &denumireSpectacol, int durataSpectacol,double pretBilet, Solist *solist, int nrActe,
+    SpectacolOpera(const string &denumireSpectacol, int durataSpectacol,double pretBilet, Solist solist, int nrActe,
                    const vector<int> &durataActe, int durataPauza);
     virtual ~SpectacolOpera(){};
     SpectacolOpera& operator=(const SpectacolOpera& spectacolOpera);
@@ -346,7 +267,7 @@ public:
     virtual istream& read(istream &is);
     virtual ostream& print(ostream &os);
 };
-const Solist * SpectacolOpera::getSolist() {
+const Solist  SpectacolOpera::getSolist() {
     return solist;
 }
 const int SpectacolOpera::getNrActe() {
@@ -359,7 +280,7 @@ const int SpectacolOpera::getDurataPauza() {
     return durataPauza;
 }
 
-void SpectacolOpera::setSolist(Solist *solist) {
+void SpectacolOpera::setSolist(Solist solist) {
     SpectacolOpera::solist = solist;
 }
 
@@ -375,50 +296,20 @@ void SpectacolOpera::setDurataPauza(int durataPauza) {
     SpectacolOpera::durataPauza = durataPauza;
 }
 SpectacolOpera::SpectacolOpera() :Spectacol(){
-    solist = NULL;
+    Solist s;
+    solist = s;
     nrActe = 0;
     durataPauza = 0;
 }
-SpectacolOpera::SpectacolOpera(const string &denumireSpectacol, int durataSpectacol, double pretBilet, Solist *solist, int nrActe,
+SpectacolOpera::SpectacolOpera(const string &denumireSpectacol, int durataSpectacol, double pretBilet, Solist solist, int nrActe,
                                const vector<int> &durataActe, int durataPauza) : Spectacol(denumireSpectacol,
                                                                                            durataSpectacol,pretBilet), nrActe(nrActe),
                                                                                  durataActe(durataActe),
                                                                                  durataPauza(durataPauza) {
-    if(SolistTenor *solistTenor = dynamic_cast<SolistTenor*>(solist)){
-        delete this->solist;
-        this->solist = Solist::Create("Tenor");
-        this->solist = solist;
-    }
-    else if(SolistBass *solistBass = dynamic_cast<SolistBass*>(solist)){
-        delete this->solist;
-        this->solist = Solist::Create("Bass");
-        this->solist = solist;
-    }
-    else if(SolistBariton *solistBariton = dynamic_cast<SolistBariton*>(solist)){
-        delete this->solist;
-        this->solist = Solist::Create("Bariton");
-        this->solist = solist;
-    }
-
+    this->solist = solist;
 }
 
 SpectacolOpera::SpectacolOpera(const SpectacolOpera &spectacolOpera):Spectacol(spectacolOpera) {
-    if(SolistTenor *solistTenor = dynamic_cast<SolistTenor*>(spectacolOpera.solist)){
-        delete this->solist;
-        this->solist = Solist::Create("Tenor");
-        this->solist = spectacolOpera.solist;
-    }
-    else if(SolistBass *solistBass = dynamic_cast<SolistBass*>(spectacolOpera.solist)){
-        delete this->solist;
-        this->solist = Solist::Create("Bass");
-        this->solist = spectacolOpera.solist;
-    }
-    else if(SolistBariton *solistBariton = dynamic_cast<SolistBariton*>(spectacolOpera.solist)){
-        delete this->solist;
-        this->solist = Solist::Create("Bariton");
-        this->solist = spectacolOpera.solist;
-    }
-
     this->solist = spectacolOpera.solist;
     this->nrActe = spectacolOpera.nrActe;
     this->durataPauza = spectacolOpera.durataPauza;
@@ -427,21 +318,7 @@ SpectacolOpera::SpectacolOpera(const SpectacolOpera &spectacolOpera):Spectacol(s
 
 SpectacolOpera & SpectacolOpera::operator=(const SpectacolOpera &spectacolOpera) {
     Spectacol::operator=(spectacolOpera);
-    if(SolistTenor *solistTenor = dynamic_cast<SolistTenor*>(spectacolOpera.solist)){
-        delete this->solist;
-        this->solist = Solist::Create("Tenor");
-        this->solist = spectacolOpera.solist;
-    }
-    else if(SolistBass *solistBass = dynamic_cast<SolistBass*>(spectacolOpera.solist)){
-        delete this->solist;
-        this->solist = Solist::Create("Bass");
-        this->solist = spectacolOpera.solist;
-    }
-    else if(SolistBariton *solistBariton = dynamic_cast<SolistBariton*>(spectacolOpera.solist)){
-        delete this->solist;
-        this->solist = Solist::Create("Bariton");
-        this->solist = spectacolOpera.solist;
-    }
+    this->solist = spectacolOpera.solist;
     this->nrActe = spectacolOpera.nrActe;
     this->durataPauza = spectacolOpera.durataPauza;
     this->durataActe = spectacolOpera.durataActe;
@@ -457,25 +334,7 @@ istream & SpectacolOpera::read(istream &is) {
     cout << "Introduceti pretul biletului:\n";
     is >> this->pretBilet;
     is.get();
-    cout << "Introduceti tipul solistului(Tenor/Bass/Bariton):\n";
-    string type;
-    is >> type;
-    is.get();
-    try{
-        this->solist = Solist::Create(type);
-        if(this->solist == nullptr)
-            throw(nullptr);
-    }
-    catch (Solist *solist1){
-        cout << "Ati introdus un tip de solist gresit\n";
-        while (type!="Tenor" && type!="Bass" && type!="Bartion"){
-            cout << "Introduceti tipul solistului(Tenor/Bass/Bariton) - cu prima litera majuscula:\n";
-            is >> type;
-            is.get();
-        }
-        this->solist = Solist::Create(type);
-    }
-    is >> *solist;
+    is >> solist;
     cout << "Introduceti numarul de acte:\n";
     is >> this->nrActe;
     cout << "Introduceti duratele actelor:\n";
@@ -495,15 +354,7 @@ ostream & SpectacolOpera::print(ostream &os) {
     os << "Denumirea spectacolului de opera: " << denumireSpectacol << '\n';
     os << "Durata spectacolului de opera: " << durataSpectacol<< '\n';
     os << "Pretul Biletului: " << pretBilet <<'\n';
-    if(SolistTenor *solistTenor = dynamic_cast<SolistTenor*>(solist)){
-        os << *solist;
-    }
-    else if(SolistBass *solistBass = dynamic_cast<SolistBass*>(solist)){
-        os << *solist;
-    }
-    else if(SolistBariton *solistBariton = dynamic_cast<SolistBariton*>(solist)){
-        os << *solist;
-    }
+    os << solist;
     os << "Numarul de acte al piesei de opera:" << nrActe <<'\n';
     os << "Durata actelor:\n";
 
@@ -513,7 +364,6 @@ ostream & SpectacolOpera::print(ostream &os) {
         os <<'\n';
     }
     os << "Durata pauzei: " << durataPauza << '\n';
-
     os << '\n';
     return os;
 }
@@ -530,7 +380,7 @@ protected:
 
 };
 int main() {
-    Spectacol *spectacol = Spectacol::CreateSpectacol("Teatru");
+    Spectacol *spectacol = Spectacol::CreateSpectacol("Opera");
     cin >> *spectacol;
     cout << *spectacol;
     return 0;
